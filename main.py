@@ -1,6 +1,6 @@
 import random
 import time
-from utils import get_random_monstre
+from utils import get_random_monstre,get_all_personnages,get_top_scores
 
 def combat_par_vagues(equipe):
     vague = 1
@@ -22,7 +22,7 @@ def combat_par_vagues(equipe):
                     continue
                 print(f"{p['nom']} attaque {monstre['nom']}", end="", flush=True)
                 for _ in range(3):
-                    time.sleep(0.3)
+                    time.sleep(0.6)
                     print(" .", end="", flush=True)
                 degats = max(p['atk'] - monstre['defense'], 0)
                 monstre_pv -= degats
