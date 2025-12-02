@@ -20,9 +20,27 @@ while True:
         for idx, p in enumerate(personnages, 1):
             print(f"{idx}. {p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
 
+        # Sélection de l'équipe du joueur
+        equipe = []
+        while len(equipe) < 3:
+            choix_perso = input(f"Sélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}): ").strip()
+            if not choix_perso.isdigit() or int(choix_perso) < 1 or int(choix_perso) > len(personnages):
+                print("Choix invalide, réessayez.")
+                continue
+            perso = personnages[int(choix_perso)-1]
+            if perso in equipe:
+                print("Personnage déjà choisi, choisissez un autre.")
+                continue
+            equipe.append(perso)
+
+        print("\nVotre équipe :")
+        for p in equipe:
+            print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
+            
     elif choix == "2":
         scores = get_top_scores()
         if scores:
+            print("\nTop 3 des scores :")
             for i, s in enumerate(scores, 1):
                 print(f"{i}. {s['joueur']} - Vagues : {s['vagues']}")
         else:
