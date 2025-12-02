@@ -1,30 +1,3 @@
-from pymongo import MongoClient
-from models import Personnage, Monstre
-from utils import get_all_personnages, get_random_monstre, get_top_scores
-
-client = MongoClient("mongodb://localhost:27017")
-db = client["jeu_video"]
-
-# Test d'insertion et d'affichage
-p = Personnage("Guerrier", 15, 10, 100)
-m = Monstre("Gobelin", 10, 5, 50)
-
-print(p)
-print(m)
-
-# Tester la récupération de tous les personnages
-for p in get_all_personnages():
-    print(p)
-
-
-# Tester la récupération d'un monstre aléatoire
-print(get_random_monstre())
-
-
-#Test des scores
-db["scores"].insert_one({"joueur": "Marc", "vagues": 5})
-print("Top scores :", get_top_scores())
-
 from utils import get_top_scores
 
 while True:
@@ -36,7 +9,11 @@ while True:
     choix = input("Choisissez une option : ")
 
     if choix == "1":
-        print("Démarrage du jeu...")
+        nom_joueur = input("Entrez votre nom : ").strip()
+        while not nom_joueur:
+            nom_joueur = input("Nom invalide. Entrez votre nom : ").strip()
+
+        print(f"Bienvenue {nom_joueur}, vous allez maintenant créer votre équipe de 3 personnages.")
     elif choix == "2":
         scores = get_top_scores()
         if scores:
@@ -49,4 +26,3 @@ while True:
         break
     else:
         print("Option invalide.")
-
