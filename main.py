@@ -118,23 +118,25 @@ def print_menu():
     print("3. Quitter")
 
 def menu_principal():
-    while True:
-        try:
-            print_menu()
+    try:
+        while True:
+                print_menu()
 
-            choix = input("Choisissez une option : ").strip()
+                choix = input("Choisissez une option : ").strip()
 
-            if choix == "1":
-                initialize_game()
-            elif choix == "2":
-                afficher_classement()
-            elif choix == "3":
-                print("Au revoir !")
-                break
-            else:
-                print("Option invalide, réessayez.")
-        except Exception as e:
+                if choix == "1":
+                    initialize_game()
+                elif choix == "2":
+                    afficher_classement()
+                elif choix == "3":
+                    print("Au revoir !")
+                    break
+                else:
+                    print("Option invalide, réessayez.")
+    except Exception as e:
             print(f"Erreur inattendue : {e}")
+    finally:
+            client.close()
 
 if __name__ == "__main__":
     menu_principal()
