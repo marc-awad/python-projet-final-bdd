@@ -6,6 +6,19 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017")
 db = client["jeu_video"]
 
+def afficher_classement():
+    scores = get_top_scores(3)
+    if not scores:
+        print("Aucun score disponible.")
+        return
+
+    print("\n=== TOP 3 DES SCORES ===")
+    print(f"{'Rang':<5}{'Joueur':<15}{'Vagues':<7}")
+    print("-" * 27)
+    for rang, score in enumerate(scores, start=1):
+        print(f"{rang:<5}{score['joueur']:<15}{score['vagues']:<7}")
+
+
 def combat_par_vagues(equipe, nom_joueur):
     vague = 1
     while True:
@@ -96,16 +109,10 @@ while True:
         for p in equipe:
             print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
 
-        combat_par_vagues(equipe)
+        combat_par_vagues(equipe,nom_joueur)
 
     elif choix == "2":
-        scores = get_top_scores()
-        if scores:
-            print("\nTop 3 des scores :")
-            for i, s in enumerate(scores, 1):
-                print(f"{i}. {s['joueur']} - Vagues : {s['vagues']}")
-        else:
-            print("Aucun score disponible.")
+        afficher_classement()
     elif choix == "3":
         print("Au revoir !")
         break
