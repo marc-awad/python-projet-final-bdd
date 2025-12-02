@@ -1,12 +1,13 @@
 from pymongo import MongoClient
+from constants import *
 
 # Connexion MongoDB
-client = MongoClient("mongodb://localhost:27017")
-db = client["jeu_video"]
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
 
 # Collections pour personnages et monstres
-personnages_collection = db["personnages"]
-monstres_collection = db["monstres"]
+personnages_collection = db[COLLECTION_PERSONNAGES]
+monstres_collection = db[COLLECTION_MONSTRES]
 
 # Nettoyage des collections avant insertion
 personnages_collection.delete_many({})
@@ -45,5 +46,5 @@ personnages_collection.insert_many(personnages)
 monstres_collection.insert_many(monstres)
 
 # Nettoyage de la collection des scores
-scores_collection = db["scores"]
+scores_collection = db[COLLECTION_SCORES]
 scores_collection.delete_many({})
