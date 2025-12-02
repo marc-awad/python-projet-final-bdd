@@ -97,29 +97,34 @@ def combat_par_vagues(equipe, nom_joueur):
             print(f"Erreur pendant le combat : {e}")
             break
 
+def initialize_game():
+    print("Bienvenue dans le jeu de combat par vagues !")
+    nom_joueur = saisie_joueur()
+    personnages = get_all_personnages()
+    if not personnages:
+        print("Aucun personnage disponible. Retour au menu.")
+    afficher_personnages(personnages)
+    equipe = selection_equipe(personnages)
+    print("\nVotre équipe :")
+    for p in equipe:
+        print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
+    combat_par_vagues(equipe, nom_joueur)
+
+def print_menu():
+    print("\n=== MENU PRINCIPAL ===")
+    print("1. Démarrer le jeu")
+    print("2. Classement")
+    print("3. Quitter")
+
 def menu_principal():
     while True:
         try:
-            print("\n=== MENU PRINCIPAL ===")
-            print("1. Démarrer le jeu")
-            print("2. Classement")
-            print("3. Quitter")
+            print_menu()
 
             choix = input("Choisissez une option : ").strip()
 
             if choix == "1":
-                nom_joueur = saisie_joueur()
-                personnages = get_all_personnages()
-                if not personnages:
-                    print("Aucun personnage disponible. Retour au menu.")
-                    continue
-                afficher_personnages(personnages)
-                equipe = selection_equipe(personnages)
-                print("\nVotre équipe :")
-                for p in equipe:
-                    print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
-                combat_par_vagues(equipe, nom_joueur)
-
+                initialize_game()
             elif choix == "2":
                 afficher_classement()
             elif choix == "3":
