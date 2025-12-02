@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from models import Personnage, Monstre
-from utils import get_all_personnages, get_random_monstre
+from utils import get_all_personnages, get_random_monstre, get_top_scores
 
 client = MongoClient("mongodb://localhost:27017")
 db = client["jeu_video"]
@@ -19,3 +19,8 @@ for p in get_all_personnages():
 
 # Tester la récupération d'un monstre aléatoire
 print(get_random_monstre())
+
+
+#Test des scores
+db["scores"].insert_one({"joueur": "Marc", "vagues": 5})
+print("Top scores :", get_top_scores())

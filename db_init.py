@@ -43,3 +43,7 @@ monstres = [
 # Insertion en base de données
 personnages_collection.insert_many(personnages)
 monstres_collection.insert_many(monstres)
+
+# Nettoyage de la collection des scores
+scores_collection = db["scores"]
+scores_collection.delete_many({})  
