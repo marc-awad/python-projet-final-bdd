@@ -24,3 +24,29 @@ print(get_random_monstre())
 #Test des scores
 db["scores"].insert_one({"joueur": "Marc", "vagues": 5})
 print("Top scores :", get_top_scores())
+
+from utils import get_top_scores
+
+while True:
+    print("\n=== MENU PRINCIPAL ===")
+    print("1. Démarrer le jeu")
+    print("2. Classement")
+    print("3. Quitter")
+
+    choix = input("Choisissez une option : ")
+
+    if choix == "1":
+        print("Démarrage du jeu...")
+    elif choix == "2":
+        scores = get_top_scores()
+        if scores:
+            for i, s in enumerate(scores, 1):
+                print(f"{i}. {s['joueur']} - Vagues : {s['vagues']}")
+        else:
+            print("Aucun score disponible.")
+    elif choix == "3":
+        print("Au revoir !")
+        break
+    else:
+        print("Option invalide.")
+
