@@ -1,4 +1,4 @@
-from utils import get_top_scores, get_all_personnages
+from utils import get_top_scores, get_all_personnages, get_random_monstre
 
 while True:
     print("\n=== MENU PRINCIPAL ===")
@@ -36,7 +36,14 @@ while True:
         print("\nVotre équipe :")
         for p in equipe:
             print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
-            
+
+        monstre = get_random_monstre()
+        if monstre:
+            print("\nMonstre rencontré pour la première vague :")
+            print(f"{monstre['nom']} - ATK: {monstre['atk']}, DEF: {monstre['defense']}, PV: {monstre['pv']}")
+        else:
+            print("Aucun monstre disponible.")
+
     elif choix == "2":
         scores = get_top_scores()
         if scores:
