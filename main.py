@@ -1,8 +1,12 @@
 import random
 import time
-from utils import get_random_monstre,get_all_personnages,get_top_scores
+from utils import get_random_monstre, get_all_personnages, get_top_scores
+from pymongo import MongoClient
 
-def combat_par_vagues(equipe):
+client = MongoClient("mongodb://localhost:27017")
+db = client["jeu_video"]
+
+def combat_par_vagues(equipe, nom_joueur):
     vague = 1
     while True:
         monstre = get_random_monstre()
@@ -46,6 +50,9 @@ def combat_par_vagues(equipe):
 
         if all(pv <= 0 for pv in equipe_pv):
             print("\nTous vos personnages sont morts. Défaite !")
+            score = {"joueur": nom_joueur, "vagues": vague-1}
+            db["scores"].insert_one(score)
+            print(f"Votre score de {vague-1} vagues a été enregistré !")
             break
 
         vague += 1
