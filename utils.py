@@ -18,8 +18,6 @@ def get_top_scores(limit=3):
 def calculer_degats(atk, defense):
     return max(atk - defense, 0)
 
-def trier_scores(scores):
-    return sorted(scores, key=lambda s: s['vagues'], reverse=True)
 
 def afficher_pv(equipe_pv, equipe, monstre_pv, monstre_nom):
     for i, p in enumerate(equipe):
