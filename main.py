@@ -1,6 +1,6 @@
 import random
 import time
-from utils import get_random_monstre, get_all_personnages, get_top_scores
+from utils import get_random_monstre, get_all_personnages, get_top_scores, calculer_degats, afficher_pv
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://localhost:27017")
@@ -44,7 +44,7 @@ def combat_par_vagues(equipe, nom_joueur):
                     for _ in range(3):
                         time.sleep(0.6)
                         print(" .", end="", flush=True)
-                    degats = max(p['atk'] - monstre['defense'], 0)
+                    degats = calculer_degats(p['atk'], monstre['defense'])
                     monstre_pv -= degats
                     print(f" => {degats} dégâts (PV monstre: {max(monstre_pv,0)})")
                     if monstre_pv <= 0:
@@ -60,9 +60,11 @@ def combat_par_vagues(equipe, nom_joueur):
                 for _ in range(3):
                     time.sleep(0.3)
                     print(" .", end="", flush=True)
-                degats = max(monstre['atk'] - equipe[cible_idx]['defense'], 0)
+                degats = calculer_degats(monstre['atk'], equipe[cible_idx]['defense'])
                 equipe_pv[cible_idx] -= degats
                 print(f" => {degats} dégâts (PV restant: {max(equipe_pv[cible_idx],0)})")
+
+                afficher_pv(equipe_pv, equipe, monstre_pv, monstre['nom'])
 
             if all(pv <= 0 for pv in equipe_pv):
                 print("\nTous vos personnages sont morts. Défaite !")
