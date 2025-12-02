@@ -1,4 +1,57 @@
-from utils import get_top_scores, get_all_personnages, get_random_monstre
+import random
+import time
+from utils import get_random_monstre
+
+def combat_par_vagues(equipe):
+    vague = 1
+    while True:
+        monstre = get_random_monstre()
+        if not monstre:
+            print("Aucun monstre disponible.")
+            break
+
+        monstre_pv = monstre['pv']
+        equipe_pv = [p['pv'] for p in equipe]
+
+        print(f"\n=== Vague {vague} ===")
+        print(f"Monstre rencontré : {monstre['nom']} - ATK: {monstre['atk']}, DEF: {monstre['defense']}, PV: {monstre_pv}")
+
+        while monstre_pv > 0 and any(pv > 0 for pv in equipe_pv):
+            for i, p in enumerate(equipe):
+                if equipe_pv[i] <= 0:
+                    continue
+                print(f"{p['nom']} attaque {monstre['nom']}", end="", flush=True)
+                for _ in range(3):
+                    time.sleep(0.3)
+                    print(" .", end="", flush=True)
+                degats = max(p['atk'] - monstre['defense'], 0)
+                monstre_pv -= degats
+                print(f" => {degats} dégâts (PV monstre: {max(monstre_pv,0)})")
+                if monstre_pv <= 0:
+                    break
+
+            if monstre_pv <= 0:
+                print(f"{monstre['nom']} est vaincu !")
+                break
+
+            indices_vivants = [i for i, pv in enumerate(equipe_pv) if pv > 0]
+            cible_idx = random.choice(indices_vivants)
+            print(f"{monstre['nom']} attaque {equipe[cible_idx]['nom']}", end="", flush=True)
+            for _ in range(3):
+                time.sleep(0.3)
+                print(" .", end="", flush=True)
+            degats = max(monstre['atk'] - equipe[cible_idx]['defense'], 0)
+            equipe_pv[cible_idx] -= degats
+            print(f" => {degats} dégâts (PV restant: {max(equipe_pv[cible_idx],0)})")
+
+        if all(pv <= 0 for pv in equipe_pv):
+            print("\nTous vos personnages sont morts. Défaite !")
+            break
+
+        vague += 1
+        print(f"Vague {vague-1} terminée !")
+
+
 
 while True:
     print("\n=== MENU PRINCIPAL ===")
@@ -20,7 +73,6 @@ while True:
         for idx, p in enumerate(personnages, 1):
             print(f"{idx}. {p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
 
-        # Sélection de l'équipe du joueur
         equipe = []
         while len(equipe) < 3:
             choix_perso = input(f"Sélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}): ").strip()
@@ -37,12 +89,7 @@ while True:
         for p in equipe:
             print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
 
-        monstre = get_random_monstre()
-        if monstre:
-            print("\nMonstre rencontré pour la première vague :")
-            print(f"{monstre['nom']} - ATK: {monstre['atk']}, DEF: {monstre['defense']}, PV: {monstre['pv']}")
-        else:
-            print("Aucun monstre disponible.")
+        combat_par_vagues(equipe)
 
     elif choix == "2":
         scores = get_top_scores()
