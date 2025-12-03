@@ -2,11 +2,7 @@ import random
 import time
 from utils import get_random_monstre, afficher_pv, clear_screen
 from constants import *
-
-from pymongo import MongoClient
-
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
+from db import db
 
 
 def combat_par_vagues(equipe, nom_joueur):

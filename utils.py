@@ -1,11 +1,9 @@
-from pymongo import MongoClient
+from db import db
 import random
 from constants import *
 from models import Personnage, Monstre
 import os
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
 
 def get_all_personnages():
     try:
@@ -22,6 +20,7 @@ def get_all_personnages():
         print(f"Erreur lors de la récupération des personnages : {e}")
         print("Veuillez vérifier que MongoDB est démarré et accessible.")
         return []
+
 
 def get_random_monstre():
     try:
@@ -42,6 +41,7 @@ def get_random_monstre():
         print("Veuillez vérifier que MongoDB est démarré et accessible.")
         return None
 
+
 def get_top_scores(limit=TOP_SCORES_LIMIT):
     try:
         scores = db[COLLECTION_SCORES].find().sort("vagues", -1).limit(limit)
@@ -54,10 +54,12 @@ def get_top_scores(limit=TOP_SCORES_LIMIT):
         print("Veuillez vérifier que MongoDB est démarré et accessible.")
         return []
 
+
 def afficher_pv(equipe, monstre):
     for p in equipe:
         print(f"{p.nom} - PV: {p.pv}/{p.pv_max}")
     print(f"{monstre.nom} - PV: {monstre.pv}/{monstre.pv_max}")
+
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')

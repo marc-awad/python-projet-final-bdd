@@ -1,9 +1,12 @@
-from pymongo import MongoClient
+from db import db, verify_connection, close_connection
 from constants import *
 
-# Connexion MongoDB
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
+if not verify_connection():
+    print("Impossible d'initialiser la base de données.")
+    exit(1)
+
+print("Connexion MongoDB établie")
+print("Initialisation de la base de données...\n")
 
 # Collections pour personnages et monstres
 personnages_collection = db[COLLECTION_PERSONNAGES]

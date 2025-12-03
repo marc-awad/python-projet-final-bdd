@@ -2,11 +2,7 @@ import time
 from utils import get_top_scores, clear_screen
 from constants import *
 from game import initialize_game
-
-from pymongo import MongoClient
-
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
+from db import db, verify_connection, close_connection
 
 
 def afficher_classement():
@@ -69,8 +65,13 @@ def menu_principal():
     except Exception as e:
         print(f"Erreur inattendue : {e}")
     finally:
-        client.close()
+        close_connection()
 
 
 if __name__ == "__main__":
+    if not verify_connection():
+        exit(1)
+    
+    print("Connexion MongoDB établie\n")
+    time.sleep(1)
     menu_principal()
