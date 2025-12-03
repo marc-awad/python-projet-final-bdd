@@ -86,37 +86,56 @@ def saisie_joueur():
             print("Nom invalide. Réessayez.")
     return nom
 
+def afficher_equipe_en_construction(equipe):
+    print("\n=== ÉQUIPE EN COURS DE CONSTRUCTION ===")
+    for i in range(NB_PERSONNAGES_EQUIPE):
+        if i < len(equipe):
+            p = equipe[i]
+            print(f"Personnage #{i+1} : {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
+        else:
+            print(f"Personnage #{i+1} : [vide]")
+    print()
+
 def selection_equipe(personnages):
     equipe = []
     while len(equipe) < NB_PERSONNAGES_EQUIPE:
-        choix_perso = input(f"Sélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}, 0 pour annuler) : ").strip()
+        clear_screen()
+        afficher_equipe_en_construction(equipe)
+        afficher_personnages(personnages)
+        
+        choix_perso = input(f"\nSélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}, 0 pour annuler) : ").strip()
         
         if not choix_perso.isdigit():
             print("Entrée invalide. Veuillez entrer un nombre.")
+            time.sleep(1)
             continue
         
         choix_num = int(choix_perso)
         
         if choix_num == 0:
             print("Sélection annulée. Retour au menu.")
+            time.sleep(1)
             return None
         
         if choix_num < 1 or choix_num > len(personnages):
             print(f"Choix invalide. Veuillez choisir entre 1 et {len(personnages)}.")
+            time.sleep(1)
             continue
         
         perso = personnages[choix_num - 1]
         if perso in equipe:
             print("Personnage déjà choisi, choisissez un autre.")
+            time.sleep(1)
             continue
         
         equipe.append(perso)
-        print(f"{perso.nom} ajouté à l'équipe !")
+        print(f"\n✓ {perso.nom} ajouté à l'équipe !")
+        time.sleep(1)
     
     return equipe
 
 def afficher_personnages(personnages):
-    print("\nListe des personnages disponibles :")
+    print("--- Personnages disponibles ---")
     for idx, p in enumerate(personnages, 1):
         print(f"{idx}. {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
 
@@ -137,16 +156,15 @@ def initialize_game():
         input("\nAppuyez sur Entrée pour continuer...")
         return
 
-    afficher_personnages(personnages)
     equipe = selection_equipe(personnages)
     
     if equipe is None:
         return
 
     clear_screen()
-    print("\nVotre équipe :")
-    for p in equipe:
-        print(f"{p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
+    print("\n=== VOTRE ÉQUIPE FINALE ===")
+    for i, p in enumerate(equipe, 1):
+        print(f"Personnage #{i} : {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
 
     input("\nAppuyez sur Entrée pour commencer le combat...")
     clear_screen()
