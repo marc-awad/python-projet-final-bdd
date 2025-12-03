@@ -1,4 +1,3 @@
-# main.py
 import random
 import time
 from utils import get_random_monstre, get_all_personnages, get_top_scores, calculer_degats, afficher_pv, clear_screen
@@ -38,34 +37,34 @@ def combat_par_vagues(equipe, nom_joueur):
             print(MSG_AUCUN_MONSTRE)
             break
 
-        monstre_pv = monstre['pv']
-        equipe_pv = [p['pv'] for p in equipe]
+        monstre_pv = monstre.pv
+        equipe_pv = [p.pv for p in equipe]
 
         print(f"\n=== Vague {vague} ===")
-        print(f"Monstre rencontré : {monstre['nom']} - ATK: {monstre['atk']}, DEF: {monstre['defense']}, PV: {monstre_pv}")
+        print(f"Monstre rencontré : {monstre.nom} - ATK: {monstre.atk}, DEF: {monstre.defense}, PV: {monstre_pv}")
 
         while monstre_pv > 0 and any(pv > 0 for pv in equipe_pv):
             for i, p in enumerate(equipe):
                 if equipe_pv[i] <= 0:
                     continue
-                degats = calculer_degats(p['atk'], monstre['defense'])
+                degats = calculer_degats(p.atk, monstre.defense)
                 monstre_pv -= degats
-                print(f"{p['nom']} attaque {monstre['nom']} => {degats} dégâts (PV monstre: {max(monstre_pv,0)})")
+                print(f"{p.nom} attaque {monstre.nom} => {degats} dégâts (PV monstre: {max(monstre_pv,0)})")
                 time.sleep(DELAY_ATTAQUE_PERSONNAGE)
                 if monstre_pv <= 0:
                     break
 
             if monstre_pv <= 0:
-                print(f"{monstre['nom']}{MSG_VICTOIRE}")
+                print(f"{monstre.nom}{MSG_VICTOIRE}")
                 break
 
             indices_vivants = [i for i, pv in enumerate(equipe_pv) if pv > 0]
             cible_idx = random.choice(indices_vivants)
-            degats = calculer_degats(monstre['atk'], equipe[cible_idx]['defense'])
+            degats = calculer_degats(monstre.atk, equipe[cible_idx].defense)
             equipe_pv[cible_idx] -= degats
-            print(f"{monstre['nom']} attaque {equipe[cible_idx]['nom']} => {degats} dégâts (PV restant: {max(equipe_pv[cible_idx],0)})")
+            print(f"{monstre.nom} attaque {equipe[cible_idx].nom} => {degats} dégâts (PV restant: {max(equipe_pv[cible_idx],0)})")
             time.sleep(DELAY_ATTAQUE_MONSTRE)
-            afficher_pv(equipe_pv, equipe, monstre_pv, monstre['nom'])
+            afficher_pv(equipe_pv, equipe, monstre_pv, monstre.nom)
 
         if all(pv <= 0 for pv in equipe_pv):
             print(f"\n{MSG_DEFAITE}")
@@ -103,7 +102,7 @@ def selection_equipe(personnages):
 def afficher_personnages(personnages):
     print("\nListe des personnages disponibles :")
     for idx, p in enumerate(personnages, 1):
-        print(f"{idx}. {p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
+        print(f"{idx}. {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
 
 def initialize_game():
     clear_screen()
@@ -122,7 +121,7 @@ def initialize_game():
     clear_screen()
     print("\nVotre équipe :")
     for p in equipe:
-        print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
+        print(f"{p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
 
     input("\nAppuyez sur Entrée pour commencer le combat...")
     clear_screen()

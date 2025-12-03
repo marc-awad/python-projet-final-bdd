@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import random
 from constants import *
+from models import Personnage, Monstre
 import os
 
 client = MongoClient(MONGO_URI)
@@ -8,10 +9,14 @@ db = client[DB_NAME]
 
 def get_all_personnages():
     try:
-        personnages = list(db[COLLECTION_PERSONNAGES].find())
-        if not personnages:
+        personnages_data = list(db[COLLECTION_PERSONNAGES].find())
+        if not personnages_data:
             print("Attention : Aucun personnage trouvé dans la base de données.")
             return []
+        personnages = [
+            Personnage(p['nom'], p['atk'], p['defense'], p['pv']) 
+            for p in personnages_data
+        ]
         return personnages
     except Exception as e:
         print(f"Erreur lors de la récupération des personnages : {e}")
@@ -20,11 +25,18 @@ def get_all_personnages():
 
 def get_random_monstre():
     try:
-        monstres = list(db[COLLECTION_MONSTRES].find())
-        if not monstres:
+        monstres_data = list(db[COLLECTION_MONSTRES].find())
+        if not monstres_data:
             print("Attention : Aucun monstre trouvé dans la base de données.")
             return None
-        return random.choice(monstres)
+        monstre_data = random.choice(monstres_data)
+        monstre = Monstre(
+            monstre_data['nom'], 
+            monstre_data['atk'], 
+            monstre_data['defense'], 
+            monstre_data['pv']
+        )
+        return monstre
     except Exception as e:
         print(f"Erreur lors de la récupération des monstres : {e}")
         print("Veuillez vérifier que MongoDB est démarré et accessible.")
@@ -48,7 +60,7 @@ def calculer_degats(atk, defense):
 
 def afficher_pv(equipe_pv, equipe, monstre_pv, monstre_nom):
     for i, p in enumerate(equipe):
-        print(f"{p['nom']} - PV: {equipe_pv[i]}")
+        print(f"{p.nom} - PV: {equipe_pv[i]}")
     print(f"{monstre_nom} - PV: {monstre_pv}")
 
 def clear_screen():
