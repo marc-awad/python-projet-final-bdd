@@ -54,14 +54,10 @@ def get_top_scores(limit=TOP_SCORES_LIMIT):
         print("Veuillez vérifier que MongoDB est démarré et accessible.")
         return []
 
-def calculer_degats(atk, defense):
-    return max(atk - defense, 0)
-
-
-def afficher_pv(equipe_pv, equipe, monstre_pv, monstre_nom):
-    for i, p in enumerate(equipe):
-        print(f"{p.nom} - PV: {equipe_pv[i]}")
-    print(f"{monstre_nom} - PV: {monstre_pv}")
+def afficher_pv(equipe, monstre):
+    for p in equipe:
+        print(f"{p.nom} - PV: {p.pv}/{p.pv_max}")
+    print(f"{monstre.nom} - PV: {monstre.pv}/{monstre.pv_max}")
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')

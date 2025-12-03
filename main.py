@@ -1,6 +1,6 @@
 import random
 import time
-from utils import get_random_monstre, get_all_personnages, get_top_scores, calculer_degats, afficher_pv, clear_screen
+from utils import get_random_monstre, get_all_personnages, get_top_scores, afficher_pv, clear_screen
 from constants import *
 
 from pymongo import MongoClient
@@ -37,36 +37,33 @@ def combat_par_vagues(equipe, nom_joueur):
             print(MSG_AUCUN_MONSTRE)
             break
 
-        monstre_pv = monstre.pv
-        equipe_pv = [p.pv for p in equipe]
-
         print(f"\n=== Vague {vague} ===")
-        print(f"Monstre rencontré : {monstre.nom} - ATK: {monstre.atk}, DEF: {monstre.defense}, PV: {monstre_pv}")
+        print(f"Monstre rencontré : {monstre.nom} - ATK: {monstre.atk}, DEF: {monstre.defense}, PV: {monstre.pv}")
 
-        while monstre_pv > 0 and any(pv > 0 for pv in equipe_pv):
-            for i, p in enumerate(equipe):
-                if equipe_pv[i] <= 0:
+        while monstre.est_vivant() and any(p.est_vivant() for p in equipe):
+            for p in equipe:
+                if not p.est_vivant():
                     continue
-                degats = calculer_degats(p.atk, monstre.defense)
-                monstre_pv -= degats
-                print(f"{p.nom} attaque {monstre.nom} => {degats} dégâts (PV monstre: {max(monstre_pv,0)})")
+                
+                degats = p.attaquer(monstre)
+                print(f"{p.nom} attaque {monstre.nom} => {degats} dégâts (PV monstre: {monstre.pv})")
                 time.sleep(DELAY_ATTAQUE_PERSONNAGE)
-                if monstre_pv <= 0:
+                
+                if not monstre.est_vivant():
                     break
 
-            if monstre_pv <= 0:
+            if not monstre.est_vivant():
                 print(f"{monstre.nom}{MSG_VICTOIRE}")
                 break
 
-            indices_vivants = [i for i, pv in enumerate(equipe_pv) if pv > 0]
-            cible_idx = random.choice(indices_vivants)
-            degats = calculer_degats(monstre.atk, equipe[cible_idx].defense)
-            equipe_pv[cible_idx] -= degats
-            print(f"{monstre.nom} attaque {equipe[cible_idx].nom} => {degats} dégâts (PV restant: {max(equipe_pv[cible_idx],0)})")
+            personnages_vivants = [p for p in equipe if p.est_vivant()]
+            cible = random.choice(personnages_vivants)
+            degats = monstre.attaquer(cible)
+            print(f"{monstre.nom} attaque {cible.nom} => {degats} dégâts (PV restant: {cible.pv})")
             time.sleep(DELAY_ATTAQUE_MONSTRE)
-            afficher_pv(equipe_pv, equipe, monstre_pv, monstre.nom)
+            afficher_pv(equipe, monstre)
 
-        if all(pv <= 0 for pv in equipe_pv):
+        if not any(p.est_vivant() for p in equipe):
             print(f"\n{MSG_DEFAITE}")
             db[COLLECTION_SCORES].insert_one({"joueur": nom_joueur, "vagues": vague-1})
             print(f"Votre score de {vague-1} vagues a été enregistré !")
