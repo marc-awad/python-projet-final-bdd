@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import random
 from constants import *
+import os
 
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
@@ -24,3 +25,6 @@ def afficher_pv(equipe_pv, equipe, monstre_pv, monstre_nom):
     for i, p in enumerate(equipe):
         print(f"{p['nom']} - PV: {equipe_pv[i]}")
     print(f"{monstre_nom} - PV: {monstre_pv}")
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')

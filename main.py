@@ -1,7 +1,7 @@
 # main.py
 import random
 import time
-from utils import get_random_monstre, get_all_personnages, get_top_scores, calculer_degats, afficher_pv
+from utils import get_random_monstre, get_all_personnages, get_top_scores, calculer_degats, afficher_pv, clear_screen
 from constants import *
 
 from pymongo import MongoClient
@@ -11,21 +11,28 @@ db = client[DB_NAME]
 
 def afficher_classement():
     try:
+        clear_screen()
         scores = get_top_scores(TOP_SCORES_LIMIT)
         if not scores:
             print("Aucun score disponible.")
             return
+
         print("\n=== TOP 3 DES SCORES ===")
         print(f"{'Rang':<5}{'Joueur':<15}{'Vagues':<7}")
         print("-" * 27)
+
         for rang, score in enumerate(scores, start=1):
             print(f"{rang:<5}{score['joueur']:<15}{score['vagues']:<7}")
+
+        input("\nAppuyez sur Entrée pour revenir au menu...")
+        clear_screen()
     except Exception as e:
         print(f"Erreur lors de l'affichage du classement : {e}")
 
 def combat_par_vagues(equipe, nom_joueur):
     vague = 1
     while True:
+        clear_screen()
         monstre = get_random_monstre()
         if not monstre:
             print(MSG_AUCUN_MONSTRE)
@@ -99,17 +106,28 @@ def afficher_personnages(personnages):
         print(f"{idx}. {p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
 
 def initialize_game():
+    clear_screen()
     print("Bienvenue dans le jeu de combat par vagues !")
     nom_joueur = saisie_joueur()
+
+    clear_screen()
     personnages = get_all_personnages()
     if not personnages:
         print("Aucun personnage disponible. Retour au menu.")
+        return
+
     afficher_personnages(personnages)
     equipe = selection_equipe(personnages)
+
+    clear_screen()
     print("\nVotre équipe :")
     for p in equipe:
         print(f"{p['nom']} - ATK: {p['atk']}, DEF: {p['defense']}, PV: {p['pv']}")
+
+    input("\nAppuyez sur Entrée pour commencer le combat...")
+    clear_screen()
     combat_par_vagues(equipe, nom_joueur)
+
 
 def print_menu():
     print("\n=== MENU PRINCIPAL ===")
@@ -120,19 +138,20 @@ def print_menu():
 def menu_principal():
     try:
         while True:
-                print_menu()
+            clear_screen()
+            print_menu()
 
-                choix = input("Choisissez une option : ").strip()
+            choix = input("Choisissez une option : ").strip()
 
-                if choix == "1":
-                    initialize_game()
-                elif choix == "2":
-                    afficher_classement()
-                elif choix == "3":
-                    print("Au revoir !")
-                    break
-                else:
-                    print("Option invalide, réessayez.")
+            if choix == "1":
+                initialize_game()
+            elif choix == "2":
+                afficher_classement()
+            elif choix == "3":
+                print("Au revoir !")
+                break
+            else:
+                print("Option invalide, réessayez.")
     except Exception as e:
             print(f"Erreur inattendue : {e}")
     finally:
