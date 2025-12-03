@@ -10,6 +10,8 @@ db = client[DB_NAME]
 
 
 def combat_par_vagues(equipe, nom_joueur):
+    from utils import get_top_scores
+    
     vague = 1
     while True:
         clear_screen()
@@ -48,6 +50,22 @@ def combat_par_vagues(equipe, nom_joueur):
             print(f"\n{MSG_DEFAITE}")
             db[COLLECTION_SCORES].insert_one({"joueur": nom_joueur, "vagues": vague-1})
             print(f"Votre score de {vague-1} vagues a été enregistré !")
+            
+            input("\nAppuyez sur Entrée pour voir le classement...")
+            
+            clear_screen()
+            scores = get_top_scores(TOP_SCORES_LIMIT)
+            if scores:
+                print("\n=== TOP 3 DES SCORES ===")
+                print(f"{'Rang':<5}{'Joueur':<15}{'Vagues':<7}")
+                print("-" * 27)
+                
+                for rang, score in enumerate(scores, start=1):
+                    print(f"{rang:<5}{score['joueur']:<15}{score['vagues']:<7}")
+            else:
+                print("Aucun score disponible.")
+            
+            input("\nAppuyez sur Entrée pour revenir au menu...")
             break
 
         vague += 1
