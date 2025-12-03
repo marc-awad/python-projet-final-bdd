@@ -1,169 +1,204 @@
 import random
 import time
-from utils import get_random_monstre, afficher_pv, clear_screen
+from utils import (
+    get_random_monstre, 
+    afficher_pv, 
+    clear_screen, 
+    get_top_scores,
+    sauvegarder_score,
+    afficher_classement_formate,
+    saisir_entier,
+    attendre_entree,
+    get_all_personnages
+)
 from constants import *
-from db import db
-
-
-def combat_par_vagues(equipe, nom_joueur):
-    from utils import get_top_scores
-    
-    vague = 1
-    while True:
-        clear_screen()
-        monstre = get_random_monstre()
-        if not monstre:
-            print(MSG_AUCUN_MONSTRE)
-            break
-
-        print(f"\n=== Vague {vague} ===")
-        print(f"Monstre rencontré : {monstre.nom} - ATK: {monstre.atk}, DEF: {monstre.defense}, PV: {monstre.pv}")
-
-        while monstre.est_vivant() and any(p.est_vivant() for p in equipe):
-            for p in equipe:
-                if not p.est_vivant():
-                    continue
-                
-                degats = p.attaquer(monstre)
-                print(f"{p.nom} attaque {monstre.nom} => {degats} dégâts (PV monstre: {monstre.pv})")
-                time.sleep(DELAY_ATTAQUE_PERSONNAGE)
-                
-                if not monstre.est_vivant():
-                    break
-
-            if not monstre.est_vivant():
-                print(f"{monstre.nom}{MSG_VICTOIRE}")
-                break
-
-            personnages_vivants = [p for p in equipe if p.est_vivant()]
-            cible = random.choice(personnages_vivants)
-            degats = monstre.attaquer(cible)
-            print(f"{monstre.nom} attaque {cible.nom} => {degats} dégâts (PV restant: {cible.pv})")
-            time.sleep(DELAY_ATTAQUE_MONSTRE)
-            afficher_pv(equipe, monstre)
-
-        if not any(p.est_vivant() for p in equipe):
-            print(f"\n{MSG_DEFAITE}")
-            db[COLLECTION_SCORES].insert_one({"joueur": nom_joueur, "vagues": vague-1})
-            print(f"Votre score de {vague-1} vagues a été enregistré !")
-            
-            input("\nAppuyez sur Entrée pour voir le classement...")
-            
-            clear_screen()
-            scores = get_top_scores(TOP_SCORES_LIMIT)
-            if scores:
-                print("\n=== TOP 3 DES SCORES ===")
-                print(f"{'Rang':<5}{'Joueur':<15}{'Vagues':<7}")
-                print("-" * 27)
-                
-                for rang, score in enumerate(scores, start=1):
-                    print(f"{rang:<5}{score['joueur']:<15}{score['vagues']:<7}")
-            else:
-                print("Aucun score disponible.")
-            
-            input("\nAppuyez sur Entrée pour revenir au menu...")
-            break
-
-        vague += 1
-        print(f"Vague {vague-1} terminée !")
 
 
 def initialize_game():
-    from utils import get_all_personnages
-    
+    """Point d'entrée du jeu : initialise une nouvelle partie"""
     clear_screen()
     print("Bienvenue dans le jeu de combat par vagues !")
-    nom_joueur = saisie_joueur()
     
+    nom_joueur = _saisir_nom_joueur()
     if nom_joueur is None:
         print("Retour au menu principal.")
-        time.sleep(1)
+        time.sleep(DELAY_MESSAGE_COURT)
         return
 
-    clear_screen()
-    personnages = get_all_personnages()
-    if not personnages:
-        print("Aucun personnage disponible. Retour au menu.")
-        input("\nAppuyez sur Entrée pour continuer...")
+    personnages_disponibles = get_all_personnages()
+    if not personnages_disponibles:
+        print(MSG_AUCUN_PERSONNAGE)
+        attendre_entree()
         return
 
-    equipe = selection_equipe(personnages)
+    equipe_joueur = _selectionner_equipe(personnages_disponibles)
+    if equipe_joueur is None:
+        return
+
+    _afficher_equipe_finale(equipe_joueur)
+    attendre_entree("\nAppuyez sur Entrée pour commencer le combat...")
     
-    if equipe is None:
-        return
-
     clear_screen()
-    print("\n=== VOTRE ÉQUIPE FINALE ===")
-    for i, p in enumerate(equipe, 1):
-        print(f"Personnage #{i} : {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
-
-    input("\nAppuyez sur Entrée pour commencer le combat...")
-    clear_screen()
-    combat_par_vagues(equipe, nom_joueur)
+    _lancer_combat_par_vagues(equipe_joueur, nom_joueur)
 
 
-def saisie_joueur():
-    nom = ""
-    while not nom:
-        nom = input("Entrez votre nom (0 pour annuler) : ").strip()
-        if nom == "0":
-            return None
-        if not nom:
-            print("Nom invalide. Réessayez.")
-    return nom
+def _lancer_combat_par_vagues(equipe, nom_joueur):
+    """Gère la boucle principale du combat par vagues"""
+    numero_vague = 1
+    
+    while True:
+        clear_screen()
+        monstre_actuel = get_random_monstre()
+        
+        if not monstre_actuel:
+            print(MSG_AUCUN_MONSTRE)
+            break
 
-
-def afficher_equipe_en_construction(equipe):
-    print("\n=== ÉQUIPE EN COURS DE CONSTRUCTION ===")
-    for i in range(NB_PERSONNAGES_EQUIPE):
-        if i < len(equipe):
-            p = equipe[i]
-            print(f"Personnage #{i+1} : {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
+        _afficher_entete_vague(numero_vague, monstre_actuel)
+        
+        # Combat jusqu'à la victoire ou la défaite
+        if _executer_combat(equipe, monstre_actuel):
+            # Victoire : le monstre est vaincu
+            print(f"{monstre_actuel.nom}{MSG_VICTOIRE}")
+            numero_vague += 1
+            print(f"Vague {numero_vague - 1} terminée !")
         else:
-            print(f"Personnage #{i+1} : [vide]")
-    print()
+            # Défaite : l'équipe est vaincue
+            _gerer_defaite(nom_joueur, numero_vague - 1)
+            break
 
 
-def selection_equipe(personnages):
+def _executer_combat(equipe, monstre):
+    """
+    Exécute un combat entre l'équipe et le monstre
+    Retourne True si l'équipe gagne, False si elle perd
+    """
+    while monstre.est_vivant() and _equipe_a_survivants(equipe):
+        # Tour des personnages
+        for personnage in equipe:
+            if not personnage.est_vivant():
+                continue
+            
+            degats_infliges = personnage.attaquer(monstre)
+            print(f"{personnage.nom} attaque {monstre.nom} => {degats_infliges} dégâts (PV monstre: {monstre.pv})")
+            time.sleep(DELAY_ATTAQUE_PERSONNAGE)
+            
+            if not monstre.est_vivant():
+                return True  # Victoire
+
+        # Tour du monstre (si toujours vivant)
+        if monstre.est_vivant():
+            _tour_monstre(equipe, monstre)
+            afficher_pv(equipe, monstre)
+
+    return False  # Défaite
+
+
+def _tour_monstre(equipe, monstre):
+    """Le monstre attaque un personnage vivant au hasard"""
+    cibles_vivantes = [p for p in equipe if p.est_vivant()]
+    cible = random.choice(cibles_vivantes)
+    
+    degats_infliges = monstre.attaquer(cible)
+    print(f"{monstre.nom} attaque {cible.nom} => {degats_infliges} dégâts (PV restant: {cible.pv})")
+    time.sleep(DELAY_ATTAQUE_MONSTRE)
+
+
+def _gerer_defaite(nom_joueur, vagues_completees):
+    """Gère la défaite : sauvegarde le score et affiche le classement"""
+    print(f"\n{MSG_DEFAITE}")
+    sauvegarder_score(nom_joueur, vagues_completees)
+    
+    attendre_entree("\nAppuyez sur Entrée pour voir le classement...")
+    clear_screen()
+    
+    scores = get_top_scores(TOP_SCORES_LIMIT)
+    afficher_classement_formate(scores)
+    attendre_entree()
+
+
+def _selectionner_equipe(personnages_disponibles):
+    """Permet au joueur de sélectionner son équipe de personnages"""
     equipe = []
+    
     while len(equipe) < NB_PERSONNAGES_EQUIPE:
         clear_screen()
-        afficher_equipe_en_construction(equipe)
-        afficher_personnages(personnages)
+        _afficher_equipe_en_construction(equipe)
+        _afficher_personnages_disponibles(personnages_disponibles)
         
-        choix_perso = input(f"\nSélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}, 0 pour annuler) : ").strip()
+        numero_personnage = len(equipe) + 1
+        choix = saisir_entier(
+            f"\nSélectionnez le personnage #{numero_personnage} (1-{len(personnages_disponibles)}, 0 pour annuler) : ",
+            valeur_min=MENU_ANNULER,
+            valeur_max=len(personnages_disponibles)
+        )
         
-        if not choix_perso.isdigit():
-            print("Entrée invalide. Veuillez entrer un nombre.")
-            time.sleep(1)
-            continue
-        
-        choix_num = int(choix_perso)
-        
-        if choix_num == 0:
+        if choix == MENU_ANNULER:
             print("Sélection annulée. Retour au menu.")
-            time.sleep(1)
+            time.sleep(DELAY_MESSAGE_COURT)
             return None
         
-        if choix_num < 1 or choix_num > len(personnages):
-            print(f"Choix invalide. Veuillez choisir entre 1 et {len(personnages)}.")
-            time.sleep(1)
-            continue
+        personnage_choisi = personnages_disponibles[choix - 1]
         
-        perso = personnages[choix_num - 1]
-        if perso in equipe:
+        if personnage_choisi in equipe:
             print("Personnage déjà choisi, choisissez un autre.")
-            time.sleep(1)
+            time.sleep(DELAY_MESSAGE_COURT)
             continue
         
-        equipe.append(perso)
-        print(f"\n✓ {perso.nom} ajouté à l'équipe !")
-        time.sleep(1)
+        equipe.append(personnage_choisi)
+        print(f"\n✓ {personnage_choisi.nom} ajouté à l'équipe !")
+        time.sleep(DELAY_MESSAGE_COURT)
     
     return equipe
 
 
-def afficher_personnages(personnages):
+def _saisir_nom_joueur():
+    """Demande au joueur de saisir son nom"""
+    while True:
+        nom = input("Entrez votre nom (0 pour annuler) : ").strip()
+        
+        if nom == "0":
+            return None
+        
+        if nom:
+            return nom
+        
+        print("Nom invalide. Réessayez.")
+
+
+def _afficher_equipe_en_construction(equipe):
+    """Affiche l'équipe en cours de construction"""
+    print("\n=== ÉQUIPE EN COURS DE CONSTRUCTION ===")
+    for index in range(NB_PERSONNAGES_EQUIPE):
+        if index < len(equipe):
+            personnage = equipe[index]
+            print(f"Personnage #{index + 1} : {personnage.nom} - ATK: {personnage.atk}, DEF: {personnage.defense}, PV: {personnage.pv}")
+        else:
+            print(f"Personnage #{index + 1} : [vide]")
+    print()
+
+
+def _afficher_personnages_disponibles(personnages):
+    """Affiche la liste des personnages disponibles"""
     print("--- Personnages disponibles ---")
-    for idx, p in enumerate(personnages, 1):
-        print(f"{idx}. {p.nom} - ATK: {p.atk}, DEF: {p.defense}, PV: {p.pv}")
+    for index, personnage in enumerate(personnages, 1):
+        print(f"{index}. {personnage.nom} - ATK: {personnage.atk}, DEF: {personnage.defense}, PV: {personnage.pv}")
+
+
+def _afficher_equipe_finale(equipe):
+    """Affiche l'équipe finale avant le début du combat"""
+    clear_screen()
+    print("\n=== VOTRE ÉQUIPE FINALE ===")
+    for index, personnage in enumerate(equipe, 1):
+        print(f"Personnage #{index} : {personnage.nom} - ATK: {personnage.atk}, DEF: {personnage.defense}, PV: {personnage.pv}")
+
+
+def _afficher_entete_vague(numero_vague, monstre):
+    """Affiche l'en-tête d'une nouvelle vague"""
+    print(f"\n=== Vague {numero_vague} ===")
+    print(f"Monstre rencontré : {monstre.nom} - ATK: {monstre.atk}, DEF: {monstre.defense}, PV: {monstre.pv}")
+
+
+def _equipe_a_survivants(equipe):
+    """Vérifie s'il reste au moins un personnage vivant dans l'équipe"""
+    return any(personnage.est_vivant() for personnage in equipe)

@@ -1,71 +1,71 @@
 import time
-from utils import get_top_scores, clear_screen
+from utils import (
+    get_top_scores, 
+    clear_screen, 
+    afficher_classement_formate,
+    saisir_entier,
+    attendre_entree
+)
 from constants import *
 from game import initialize_game
-from db import db, verify_connection, close_connection
-
-
-def afficher_classement():
-    try:
-        clear_screen()
-        scores = get_top_scores(TOP_SCORES_LIMIT)
-        if not scores:
-            print("Aucun score disponible.")
-            input("\nAppuyez sur Entrée pour revenir au menu...")
-            return
-
-        print("\n=== TOP 3 DES SCORES ===")
-        print(f"{'Rang':<5}{'Joueur':<15}{'Vagues':<7}")
-        print("-" * 27)
-
-        for rang, score in enumerate(scores, start=1):
-            print(f"{rang:<5}{score['joueur']:<15}{score['vagues']:<7}")
-
-        input("\nAppuyez sur Entrée pour revenir au menu...")
-        clear_screen()
-    except Exception as e:
-        print(f"Erreur lors de l'affichage du classement : {e}")
-        input("\nAppuyez sur Entrée pour revenir au menu...")
-
-
-def print_menu():
-    print("\n=== MENU PRINCIPAL ===")
-    print("1. Démarrer le jeu")
-    print("2. Classement")
-    print("3. Quitter")
+from db import verify_connection, close_connection
 
 
 def menu_principal():
+    """Gère le menu principal du jeu"""
     try:
         while True:
             clear_screen()
-            print_menu()
-
-            choix = input("\nChoisissez une option : ").strip()
-
-            if not choix.isdigit():
-                print("Entrée invalide. Veuillez entrer un nombre.")
-                time.sleep(1)
-                continue
-
-            choix_num = int(choix)
-
-            if choix_num == 1:
-                initialize_game()
-            elif choix_num == 2:
-                afficher_classement()
-            elif choix_num == 3:
-                print("Au revoir !")
+            _afficher_menu()
+            
+            choix = saisir_entier(
+                "\nChoisissez une option : ",
+                valeur_min=MENU_JOUER,
+                valeur_max=MENU_QUITTER
+            )
+            
+            _traiter_choix_menu(choix)
+            
+            if choix == MENU_QUITTER:
                 break
-            else:
-                print("Option invalide. Veuillez choisir entre 1 et 3.")
-                time.sleep(1)
+                
     except KeyboardInterrupt:
-        print("\n\nInterruption détectée. Au revoir !")
+        print(MSG_INTERRUPTION)
     except Exception as e:
         print(f"Erreur inattendue : {e}")
     finally:
         close_connection()
+
+
+def _afficher_menu():
+    """Affiche les options du menu principal"""
+    print("\n=== MENU PRINCIPAL ===")
+    print(f"{MENU_JOUER}. Démarrer le jeu")
+    print(f"{MENU_CLASSEMENT}. Classement")
+    print(f"{MENU_QUITTER}. Quitter")
+
+
+def _traiter_choix_menu(choix):
+    """Exécute l'action correspondant au choix du menu"""
+    if choix == MENU_JOUER:
+        initialize_game()
+    elif choix == MENU_CLASSEMENT:
+        _afficher_page_classement()
+    elif choix == MENU_QUITTER:
+        print(MSG_AU_REVOIR)
+
+
+def _afficher_page_classement():
+    """Affiche la page du classement des scores"""
+    try:
+        clear_screen()
+        scores = get_top_scores(TOP_SCORES_LIMIT)
+        afficher_classement_formate(scores)
+        attendre_entree()
+        
+    except Exception as e:
+        print(f"Erreur lors de l'affichage du classement : {e}")
+        attendre_entree()
 
 
 if __name__ == "__main__":
@@ -73,5 +73,5 @@ if __name__ == "__main__":
         exit(1)
     
     print("Connexion MongoDB établie\n")
-    time.sleep(1)
+    time.sleep(DELAY_MESSAGE_COURT)
     menu_principal()
