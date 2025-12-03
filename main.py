@@ -14,6 +14,7 @@ def afficher_classement():
         scores = get_top_scores(TOP_SCORES_LIMIT)
         if not scores:
             print("Aucun score disponible.")
+            input("\nAppuyez sur Entrée pour revenir au menu...")
             return
 
         print("\n=== TOP 3 DES SCORES ===")
@@ -27,6 +28,7 @@ def afficher_classement():
         clear_screen()
     except Exception as e:
         print(f"Erreur lors de l'affichage du classement : {e}")
+        input("\nAppuyez sur Entrée pour revenir au menu...")
 
 def combat_par_vagues(equipe, nom_joueur):
     vague = 1
@@ -77,7 +79,9 @@ def combat_par_vagues(equipe, nom_joueur):
 def saisie_joueur():
     nom = ""
     while not nom:
-        nom = input("Entrez votre nom : ").strip()
+        nom = input("Entrez votre nom (0 pour annuler) : ").strip()
+        if nom == "0":
+            return None
         if not nom:
             print("Nom invalide. Réessayez.")
     return nom
@@ -85,15 +89,30 @@ def saisie_joueur():
 def selection_equipe(personnages):
     equipe = []
     while len(equipe) < NB_PERSONNAGES_EQUIPE:
-        choix_perso = input(f"Sélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}): ").strip()
-        if not choix_perso.isdigit() or int(choix_perso) < 1 or int(choix_perso) > len(personnages):
-            print("Choix invalide, réessayez.")
+        choix_perso = input(f"Sélectionnez le personnage #{len(equipe)+1} (1-{len(personnages)}, 0 pour annuler) : ").strip()
+        
+        if not choix_perso.isdigit():
+            print("Entrée invalide. Veuillez entrer un nombre.")
             continue
-        perso = personnages[int(choix_perso)-1]
+        
+        choix_num = int(choix_perso)
+        
+        if choix_num == 0:
+            print("Sélection annulée. Retour au menu.")
+            return None
+        
+        if choix_num < 1 or choix_num > len(personnages):
+            print(f"Choix invalide. Veuillez choisir entre 1 et {len(personnages)}.")
+            continue
+        
+        perso = personnages[choix_num - 1]
         if perso in equipe:
             print("Personnage déjà choisi, choisissez un autre.")
             continue
+        
         equipe.append(perso)
+        print(f"{perso.nom} ajouté à l'équipe !")
+    
     return equipe
 
 def afficher_personnages(personnages):
@@ -105,15 +124,24 @@ def initialize_game():
     clear_screen()
     print("Bienvenue dans le jeu de combat par vagues !")
     nom_joueur = saisie_joueur()
+    
+    if nom_joueur is None:
+        print("Retour au menu principal.")
+        time.sleep(1)
+        return
 
     clear_screen()
     personnages = get_all_personnages()
     if not personnages:
         print("Aucun personnage disponible. Retour au menu.")
+        input("\nAppuyez sur Entrée pour continuer...")
         return
 
     afficher_personnages(personnages)
     equipe = selection_equipe(personnages)
+    
+    if equipe is None:
+        return
 
     clear_screen()
     print("\nVotre équipe :")
@@ -137,21 +165,31 @@ def menu_principal():
             clear_screen()
             print_menu()
 
-            choix = input("Choisissez une option : ").strip()
+            choix = input("\nChoisissez une option : ").strip()
 
-            if choix == "1":
+            if not choix.isdigit():
+                print("Entrée invalide. Veuillez entrer un nombre.")
+                time.sleep(1)
+                continue
+
+            choix_num = int(choix)
+
+            if choix_num == 1:
                 initialize_game()
-            elif choix == "2":
+            elif choix_num == 2:
                 afficher_classement()
-            elif choix == "3":
+            elif choix_num == 3:
                 print("Au revoir !")
                 break
             else:
-                print("Option invalide, réessayez.")
+                print("Option invalide. Veuillez choisir entre 1 et 3.")
+                time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n\nInterruption détectée. Au revoir !")
     except Exception as e:
-            print(f"Erreur inattendue : {e}")
+        print(f"Erreur inattendue : {e}")
     finally:
-            client.close()
+        client.close()
 
 if __name__ == "__main__":
     menu_principal()
