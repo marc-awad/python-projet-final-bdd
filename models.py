@@ -1,3 +1,4 @@
+from constants import DEGATS_MINIMUM
 class Entity:
     """Classe de base pour les personnages et monstres"""
     
@@ -11,7 +12,7 @@ class Entity:
     def attaquer(self, cible):
         """Calcule les dégâts en tenant compte de la défense et les inflige à la cible"""
         degats_bruts = self.atk - cible.defense
-        degats_reels = max(degats_bruts, 0)  # Évite les dégâts négatifs
+        degats_reels = max(degats_bruts, DEGATS_MINIMUM)  
         cible.subir_degats(degats_reels)
         return degats_reels
 
