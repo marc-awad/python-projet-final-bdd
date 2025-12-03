@@ -1,40 +1,62 @@
-# 🕹️ Python CLI RPG Game with MongoDB
+# 🎮 Jeu RPG MongoDB - Combat par Vagues
 
-A command-line RPG game built in Python where players create a team of characters to fight endless waves of monsters, with data stored in MongoDB.
+Un jeu RPG en ligne de commande où vous composez une équipe de 3 héros pour affronter des vagues infinies de monstres. Toutes les données sont stockées dans MongoDB.
 
-## 🎯 Features
+## ✨ Fonctionnalités
 
-- 10 playable characters stored in MongoDB
-- Random monsters with different stats
-- Team of 3 unique characters
-- Infinite combat system with wave counter
-- Top 3 high scores saved in database
+- 🦸 10 personnages jouables avec statistiques uniques (ATK, DEF, PV)
+- 👹 10 types de monstres aléatoires
+- ⚔️ Système de combat automatisé avec calcul de dégâts
+- 📊 Top 3 des meilleurs scores enregistrés
+- 🎯 Compteur de vagues infini
 
-## ▶️ How to Run
+## 🚀 Installation & Lancement
 
-### Requirements
+**Prérequis :**
 
 - Python 3.8+
-- MongoDB
-- pymongo
+- MongoDB (démarré sur `localhost:27017`)
 
-Install dependency:
+**Installation :**
+
+```bash
 pip install pymongo
+```
 
-Run the project:
-python db_init.py  
+**Exécution :**
+
+```bash
+# 1. Initialiser la base de données
+python db_init.py
+
+# 2. Lancer le jeu
 python main.py
+```
 
-## 📁 Project Structure
+## 🎯 Objectif
 
-jeu_video_python/  
-|-- main.py  
-|-- db_init.py  
-|-- game.py  
-|-- utils.py  
-|-- models.py  
-|-- README.md
+Survivez au maximum de vagues et atteignez le Top 3 du classement !
 
-## 🏆 Objective
+## 📂 Structure
 
-Survive as many waves as possible and reach the Top 3 ranking.
+```
+python-projet-final-bdd/
+├── main.py        # Menu principal
+├── game.py        # Logique de combat
+├── models.py      # Classes Personnage/Monstre
+├── utils.py       # Fonctions utilitaires
+├── constants.py   # Constantes du jeu
+└── db_init.py     # Initialisation MongoDB
+```
+
+## 🎮 Gameplay
+
+1. Choisissez votre nom de joueur
+2. Composez une équipe de 3 personnages uniques
+3. Affrontez des monstres vague après vague
+4. Chaque victoire incrémente votre score
+5. Game over quand toute votre équipe est KO
+
+---
+
+_Développé en Python avec MongoDB_
