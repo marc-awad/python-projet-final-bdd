@@ -7,15 +7,40 @@ client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 
 def get_all_personnages():
-    return list(db[COLLECTION_PERSONNAGES].find())
+    try:
+        personnages = list(db[COLLECTION_PERSONNAGES].find())
+        if not personnages:
+            print("Attention : Aucun personnage trouvé dans la base de données.")
+            return []
+        return personnages
+    except Exception as e:
+        print(f"Erreur lors de la récupération des personnages : {e}")
+        print("Veuillez vérifier que MongoDB est démarré et accessible.")
+        return []
 
 def get_random_monstre():
-    monstres = list(db[COLLECTION_MONSTRES].find())
-    return random.choice(monstres) if monstres else None
+    try:
+        monstres = list(db[COLLECTION_MONSTRES].find())
+        if not monstres:
+            print("Attention : Aucun monstre trouvé dans la base de données.")
+            return None
+        return random.choice(monstres)
+    except Exception as e:
+        print(f"Erreur lors de la récupération des monstres : {e}")
+        print("Veuillez vérifier que MongoDB est démarré et accessible.")
+        return None
 
 def get_top_scores(limit=TOP_SCORES_LIMIT):
-    scores = db[COLLECTION_SCORES].find().sort("vagues", -1).limit(limit)
-    return list(scores)
+    try:
+        scores = db[COLLECTION_SCORES].find().sort("vagues", -1).limit(limit)
+        scores_list = list(scores)
+        if not scores_list:
+            return []
+        return scores_list
+    except Exception as e:
+        print(f"Erreur lors de la récupération des scores : {e}")
+        print("Veuillez vérifier que MongoDB est démarré et accessible.")
+        return []
 
 def calculer_degats(atk, defense):
     return max(atk - defense, 0)
