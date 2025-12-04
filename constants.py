@@ -11,6 +11,9 @@ COLLECTION_SCORES = "scores"
 NB_PERSONNAGES_EQUIPE = 3
 TOP_SCORES_LIMIT = 3
 
+# Configuration du gameplay
+TAUX_RECUPERATION_PV = 0.6
+
 # Délais d'affichage pour améliorer la lisibilité
 DELAY_ATTAQUE_PERSONNAGE = 0.6
 DELAY_ATTAQUE_MONSTRE = 0.3

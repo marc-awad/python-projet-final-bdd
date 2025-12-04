@@ -80,7 +80,7 @@ def _lancer_combat_par_vagues(equipe, nom_joueur):
             break
 
         if _executer_combat(equipe, monstre_actuel):
-            numero_vague = _gerer_victoire_vague(numero_vague, monstre_actuel)
+            numero_vague = _gerer_victoire_vague(numero_vague, monstre_actuel, equipe)
         else:
             _gerer_defaite(nom_joueur, numero_vague - 1)
             break
@@ -99,11 +99,35 @@ def _initialiser_vague(numero_vague):
     return monstre
 
 
-def _gerer_victoire_vague(numero_vague, monstre):
+def _gerer_victoire_vague(numero_vague, monstre, equipe):
     """Gère la victoire d'une vague"""
     print(f"{monstre.nom}{MSG_VICTOIRE}")
     print(f"Vague {numero_vague} terminée !")
+    
+    # ✅ AJOUTÉ : Restauration des PV
+    _restaurer_equipe(equipe)
+    attendre_entree("\nAppuyez sur Entrée pour continuer vers la prochaine vague...")
+    
     return numero_vague + 1
+
+
+def _restaurer_equipe(equipe):
+    print(f"\n--- Repos et soins ({int(TAUX_RECUPERATION_PV * 100)}% des PV manquants) ---")
+    
+    for personnage in equipe:
+        if personnage.est_vivant():
+            pv_avant = personnage.pv
+            pv_manquants = personnage.pv_max - personnage.pv
+            soins = int(pv_manquants * TAUX_RECUPERATION_PV)
+            
+            personnage.pv = min(personnage.pv + soins, personnage.pv_max)
+            
+            if soins > 0:
+                print(f"✚ {personnage.nom} récupère {soins} PV ({pv_avant} → {personnage.pv}/{personnage.pv_max})")
+            else:
+                print(f"✓ {personnage.nom} est déjà en pleine forme ({personnage.pv}/{personnage.pv_max})")
+    
+    time.sleep(DELAY_MESSAGE_COURT)
 
 
 def _executer_combat(equipe, monstre):
