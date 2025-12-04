@@ -32,7 +32,7 @@ def afficher_pv(equipe, monstre):
 
 
 def clear_screen():
-    """Efface l'écran du terminal (Windows et Unix)"""
+    """Efface l'écran du terminal"""
     commande = "cls" if os.name == "nt" else "clear"
     os.system(commande)
 

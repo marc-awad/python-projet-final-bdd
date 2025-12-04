@@ -13,18 +13,11 @@ from db import verify_connection, close_connection
 
 def main():
     """Point d'entrée principal de l'application"""
-    if not _verifier_prerequis():
+    if not verify_connection():
         exit(1)
 
     _afficher_message_connexion()
     _executer_boucle_principale()
-
-
-def _verifier_prerequis():
-    """Vérifie que tous les prérequis sont satisfaits"""
-    if not verify_connection():
-        return False
-    return True
 
 
 def _afficher_message_connexion():

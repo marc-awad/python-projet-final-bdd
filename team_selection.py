@@ -152,10 +152,7 @@ def _afficher_personnages_disponibles(personnages):
 
 
 def _afficher_info_personnage(index, personnage):
-    """Affiche les informations d'un personnage"""
-    print(
-        f"{index}. {personnage.nom} - ATK: {personnage.atk}, DEF: {personnage.defense}, PV: {personnage.pv}"
-    )
+    print(f"{index}. {personnage}")
 
 
 def _afficher_equipe_finale(equipe):

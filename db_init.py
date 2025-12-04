@@ -4,7 +4,7 @@ from constants import *
 
 def initialiser_base_donnees():
     """Initialise la base de données avec des personnages et monstres par défaut"""
-    if not _verifier_connexion_db():
+    if not verify_connection():
         exit(1)
 
     _afficher_debut_initialisation()
@@ -13,13 +13,6 @@ def initialiser_base_donnees():
 
     close_connection()
 
-
-def _verifier_connexion_db():
-    """Vérifie la connexion à la base de données"""
-    if not verify_connection():
-        print("Impossible d'initialiser la base de données.")
-        return False
-    return True
 
 
 def _afficher_debut_initialisation():
