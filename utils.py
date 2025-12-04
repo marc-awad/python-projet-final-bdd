@@ -86,7 +86,7 @@ def _recuperer_entites(nom_collection, classe_entite, type_entite):
             _afficher_aucune_entite(type_entite)
             return []
         
-        return _creer_instances_entites(donnees, classe_entite)
+        return _creer_instances_entites(donnees, classe_entite, type_entite)
         
     except Exception as e:
         _afficher_erreur_db(f"récupération des {type_entite}s", e)
@@ -95,10 +95,15 @@ def _recuperer_entites(nom_collection, classe_entite, type_entite):
 
 def _creer_instances_entites(donnees, classe_entite):
     """Crée des instances d'entités à partir des données"""
-    return [
-        classe_entite(e['nom'], e['atk'], e['defense'], e['pv'])
-        for e in donnees
-    ]
+    entites = []
+    for e in donnees:
+        try:
+            entites.append(classe_entite(e['nom'], e['atk'], e['defense'], e['pv']))
+        except (KeyError, TypeError):
+            # Ignore silencieusement les erreurs
+            continue
+    
+    return entites
 
 
 def _recuperer_scores_tries(limite):
