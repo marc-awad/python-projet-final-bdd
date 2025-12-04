@@ -1,4 +1,4 @@
-from db import db, verify_connection, close_connection
+from db import get_db, verify_connection, close_connection
 from constants import *
 
 
@@ -49,7 +49,7 @@ def _nettoyer_collections():
 
 def _vider_collection(nom_collection):
     """Vide une collection spécifique"""
-    db[nom_collection].delete_many({})
+    get_db()[nom_collection].delete_many({})
 
 
 def _peupler_collections():
@@ -78,7 +78,7 @@ def _inserer_monstres():
 
 def _inserer_entites(collection, entites, nom_type):
     """Insère des entités dans une collection"""
-    db[collection].insert_many(entites)
+    get_db()[collection].insert_many(entites)
     print(f"{len(entites)} {nom_type} insérés.")
 
 

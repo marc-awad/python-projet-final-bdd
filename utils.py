@@ -1,6 +1,6 @@
 import os
 import random
-from db import db
+from db import get_db
 from constants import *
 from models import Personnage, Monstre
 
@@ -80,7 +80,7 @@ def attendre_entree(message=MSG_RETOUR_MENU):
 def _recuperer_entites(nom_collection, classe_entite, type_entite):
     """Récupère des entités depuis la base de données et les instancie"""
     try:
-        donnees = list(db[nom_collection].find())
+        donnees = list(get_db()[nom_collection].find())
         
         if not donnees:
             _afficher_aucune_entite(type_entite)
@@ -103,13 +103,13 @@ def _creer_instances_entites(donnees, classe_entite):
 
 def _recuperer_scores_tries(limite):
     """Récupère les scores triés par ordre décroissant"""
-    scores_cursor = db[COLLECTION_SCORES].find().sort("vagues", -1).limit(limite)
+    scores_cursor = get_db()[COLLECTION_SCORES].find().sort("vagues", -1).limit(limite)
     return list(scores_cursor)
 
 
 def _enregistrer_score(nom_joueur, nombre_vagues):
     """Enregistre un score dans la base de données"""
-    db[COLLECTION_SCORES].insert_one({
+    get_db()[COLLECTION_SCORES].insert_one({
         "joueur": nom_joueur, 
         "vagues": nombre_vagues
     })

@@ -1,14 +1,22 @@
 from pymongo import MongoClient
 from constants import MONGO_URI, DB_NAME
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
+# Variables privées pour lazy loading
+_client = None
+_db = None
+
+
+def get_db():
+    global _client, _db
+    if _db is None:
+        _client = MongoClient(MONGO_URI)
+        _db = _client[DB_NAME]
+    return _db
 
 
 def verify_connection():
-    """Vérifie que la connexion MongoDB est opérationnelle"""
     try:
-        client.admin.command('ping')
+        get_db().client.admin.command('ping')
         return True
     except Exception as e:
         print(f"Erreur de connexion MongoDB : {e}")
@@ -18,4 +26,8 @@ def verify_connection():
 
 def close_connection():
     """Ferme proprement la connexion à MongoDB"""
-    client.close()
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None
+        _db = None
