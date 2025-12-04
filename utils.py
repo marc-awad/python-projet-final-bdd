@@ -86,7 +86,7 @@ def _recuperer_entites(nom_collection, classe_entite, type_entite):
             _afficher_aucune_entite(type_entite)
             return []
         
-        return _creer_instances_entites(donnees, classe_entite, type_entite)
+        return _creer_instances_entites(donnees, classe_entite)
         
     except Exception as e:
         _afficher_erreur_db(f"récupération des {type_entite}s", e)
