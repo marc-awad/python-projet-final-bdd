@@ -1,10 +1,10 @@
 import time
 from utils import (
-    get_top_scores, 
-    clear_screen, 
+    get_top_scores,
+    clear_screen,
     afficher_classement_formate,
     saisir_entier,
-    attendre_entree
+    attendre_entree,
 )
 from constants import *
 from game import initialize_game
@@ -15,7 +15,7 @@ def main():
     """Point d'entrée principal de l'application"""
     if not _verifier_prerequis():
         exit(1)
-    
+
     _afficher_message_connexion()
     _executer_boucle_principale()
 
@@ -50,10 +50,10 @@ def menu_principal():
     while True:
         clear_screen()
         _afficher_menu()
-        
+
         choix = _demander_choix_menu()
         _traiter_choix_menu(choix)
-        
+
         if _doit_quitter(choix):
             break
 
@@ -74,9 +74,7 @@ def _afficher_menu():
 def _demander_choix_menu():
     """Demande et retourne le choix de l'utilisateur"""
     return saisir_entier(
-        "\nChoisissez une option : ",
-        valeur_min=MENU_JOUER,
-        valeur_max=MENU_QUITTER
+        "\nChoisissez une option : ", valeur_min=MENU_JOUER, valeur_max=MENU_QUITTER
     )
 
 

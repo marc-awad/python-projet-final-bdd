@@ -10,7 +10,7 @@ def initialiser_base_donnees():
     _afficher_debut_initialisation()
     _executer_initialisation()
     _afficher_fin_initialisation()
-    
+
     close_connection()
 
 

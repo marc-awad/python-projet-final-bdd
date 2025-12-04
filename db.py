@@ -16,7 +16,7 @@ def get_db():
 
 def verify_connection():
     try:
-        get_db().client.admin.command('ping')
+        get_db().client.admin.command("ping")
         return True
     except Exception as e:
         print(f"Erreur de connexion MongoDB : {e}")

@@ -33,7 +33,7 @@ def afficher_pv(equipe, monstre):
 
 def clear_screen():
     """Efface l'écran du terminal (Windows et Unix)"""
-    commande = 'cls' if os.name == 'nt' else 'clear'
+    commande = "cls" if os.name == "nt" else "clear"
     os.system(commande)
 
 
@@ -51,7 +51,7 @@ def afficher_classement_formate(scores):
     if not scores:
         _afficher_aucun_score()
         return
-    
+
     _afficher_entete_classement()
     _afficher_lignes_scores(scores)
 
@@ -60,16 +60,16 @@ def saisir_entier(message_prompt, valeur_min=None, valeur_max=None):
     """Demande à l'utilisateur de saisir un entier avec validation"""
     while True:
         saisie = input(message_prompt).strip()
-        
+
         if not _est_entier_valide(saisie):
             print(MSG_ENTREE_INVALIDE)
             continue
-        
+
         valeur = int(saisie)
-        
+
         if _valeur_hors_limites(valeur, valeur_min, valeur_max):
             continue
-        
+
         return valeur
 
 
@@ -77,17 +77,18 @@ def attendre_entree(message=MSG_RETOUR_MENU):
     """Fait une pause jusqu'à ce que l'utilisateur appuie sur Entrée"""
     input(message)
 
+
 def _recuperer_entites(nom_collection, classe_entite, type_entite):
     """Récupère des entités depuis la base de données et les instancie"""
     try:
         donnees = list(get_db()[nom_collection].find())
-        
+
         if not donnees:
             _afficher_aucune_entite(type_entite)
             return []
-        
+
         return _creer_instances_entites(donnees, classe_entite)
-        
+
     except Exception as e:
         _afficher_erreur_db(f"récupération des {type_entite}s", e)
         return []
@@ -98,11 +99,11 @@ def _creer_instances_entites(donnees, classe_entite):
     entites = []
     for e in donnees:
         try:
-            entites.append(classe_entite(e['nom'], e['atk'], e['defense'], e['pv']))
+            entites.append(classe_entite(e["nom"], e["atk"], e["defense"], e["pv"]))
         except (KeyError, TypeError):
             # Ignore silencieusement les erreurs
             continue
-    
+
     return entites
 
 
@@ -114,10 +115,10 @@ def _recuperer_scores_tries(limite):
 
 def _enregistrer_score(nom_joueur, nombre_vagues):
     """Enregistre un score dans la base de données"""
-    get_db()[COLLECTION_SCORES].insert_one({
-        "joueur": nom_joueur, 
-        "vagues": nombre_vagues
-    })
+    get_db()[COLLECTION_SCORES].insert_one(
+        {"joueur": nom_joueur, "vagues": nombre_vagues}
+    )
+
 
 def _afficher_pv_equipe(equipe):
     """Affiche les PV de tous les personnages de l'équipe"""
@@ -148,7 +149,9 @@ def _afficher_aucun_score():
 def _afficher_entete_classement():
     """Affiche l'en-tête du tableau de classement"""
     print("\n=== TOP 3 DES SCORES ===")
-    print(f"{'Rang':<{LARGEUR_RANG}}{'Joueur':<{LARGEUR_JOUEUR}}{'Vagues':<{LARGEUR_VAGUES}}")
+    print(
+        f"{'Rang':<{LARGEUR_RANG}}{'Joueur':<{LARGEUR_JOUEUR}}{'Vagues':<{LARGEUR_VAGUES}}"
+    )
     print("-" * (LARGEUR_RANG + LARGEUR_JOUEUR + LARGEUR_VAGUES))
 
 
@@ -160,7 +163,9 @@ def _afficher_lignes_scores(scores):
 
 def _afficher_ligne_score(rang, score):
     """Affiche une ligne de score"""
-    print(f"{rang:<{LARGEUR_RANG}}{score['joueur']:<{LARGEUR_JOUEUR}}{score['vagues']:<{LARGEUR_VAGUES}}")
+    print(
+        f"{rang:<{LARGEUR_RANG}}{score['joueur']:<{LARGEUR_JOUEUR}}{score['vagues']:<{LARGEUR_VAGUES}}"
+    )
 
 
 def _confirmer_sauvegarde(nombre_vagues):
@@ -172,6 +177,7 @@ def _afficher_erreur_db(operation, exception):
     """Affiche un message d'erreur standardisé pour les problèmes de base de données"""
     print(f"Erreur lors de la {operation} : {exception}")
     print("Veuillez vérifier que MongoDB est démarré et accessible.")
+
 
 def _est_entier_valide(saisie):
     """Vérifie si la saisie est un entier valide"""
@@ -185,10 +191,10 @@ def _valeur_hors_limites(valeur, valeur_min, valeur_max):
     """
     if _valeur_trop_petite(valeur, valeur_min):
         return True
-    
+
     if _valeur_trop_grande(valeur, valeur_max):
         return True
-    
+
     return False
 
 
