@@ -69,23 +69,26 @@ def _restaurer_equipe(equipe):
     )
 
     for personnage in equipe:
-        if personnage.est_vivant():
-            pv_avant = personnage.pv
-            pv_manquants = personnage.pv_max - personnage.pv
-            soins = int(pv_manquants * TAUX_RECUPERATION_PV)
+        if not personnage.est_vivant():
+            continue
+        pv_avant = personnage.pv
+        pv_manquants = personnage.pv_max - personnage.pv
+        soins = int(pv_manquants * TAUX_RECUPERATION_PV)
 
-            personnage.pv = min(personnage.pv + soins, personnage.pv_max)
-
-            if soins > 0:
-                print(
-                    f"✚ {personnage.nom} récupère {soins} PV ({pv_avant} → {personnage.pv}/{personnage.pv_max})"
-                )
-            else:
-                print(
-                    f"✓ {personnage.nom} est déjà en pleine forme ({personnage.pv}/{personnage.pv_max})"
-                )
-
+        personnage.pv = min(personnage.pv + soins, personnage.pv_max)
+        _afficher_soins(soins, personnage, pv_avant)
     time.sleep(DELAY_MESSAGE_COURT)
+
+
+def _afficher_soins(soins, personnage, pv_avant):
+    if soins > 0:
+        print(
+            f"✚ {personnage.nom} récupère {soins} PV ({pv_avant} → {personnage.pv}/{personnage.pv_max})"
+        )
+    else:
+        print(
+            f"✓ {personnage.nom} est déjà en pleine forme ({personnage.pv}/{personnage.pv_max})"
+        )
 
 
 def _executer_combat(equipe, monstre):
@@ -109,16 +112,19 @@ def _tour_equipe(equipe, monstre):
     Tour d'attaque de l'équipe
     Retourne True si le monstre est vaincu
     """
-    for personnage in equipe:
-        if not personnage.est_vivant():
-            continue
-
+    personnage_alive = _recuperer_personnages_vivants(equipe)
+    for personnage in personnage_alive:
         _attaque_personnage(personnage, monstre)
 
         if not monstre.est_vivant():
             return True
 
     return False
+
+
+def _recuperer_personnages_vivants(equipe):
+    """Retourne une liste des personnages vivants dans l'équipe"""
+    return [p for p in equipe if p.est_vivant()]
 
 
 def _attaque_personnage(personnage, monstre):
@@ -140,7 +146,7 @@ def _tour_monstre(equipe, monstre):
 
 def _choisir_cible_aleatoire(equipe):
     """Choisit une cible vivante au hasard dans l'équipe"""
-    cibles_vivantes = [p for p in equipe if p.est_vivant()]
+    cibles_vivantes = _recuperer_personnages_vivants(equipe)
     return random.choice(cibles_vivantes)
 
 

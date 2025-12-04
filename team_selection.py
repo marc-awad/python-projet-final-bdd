@@ -51,18 +51,21 @@ def _valider_personnages_disponibles(personnages):
 def _selectionner_equipe(personnages_disponibles):
     """Permet au joueur de sélectionner son équipe de personnages"""
     equipe = []
+    disponibles = personnages_disponibles.copy()
 
     while len(equipe) < NB_PERSONNAGES_EQUIPE:
         clear_screen()
-        _afficher_etat_selection(equipe, personnages_disponibles)
+        _afficher_etat_selection(equipe, disponibles)
 
-        choix = _demander_choix_personnage(len(equipe), len(personnages_disponibles))
+        choix = _demander_choix_personnage(len(equipe), len(disponibles))
 
         if choix == MENU_ANNULER:
             return _annuler_selection()
 
-        if not _ajouter_personnage_equipe(equipe, personnages_disponibles, choix):
-            continue
+        personnage_choisi = disponibles.pop(choix - 1)
+        equipe.append(personnage_choisi)
+
+        _confirmer_ajout_personnage(personnage_choisi)
 
     return equipe
 
@@ -88,28 +91,6 @@ def _annuler_selection():
     print("Sélection annulée. Retour au menu.")
     time.sleep(DELAY_MESSAGE_COURT)
     return None
-
-
-def _ajouter_personnage_equipe(equipe, personnages_disponibles, choix):
-    """
-    Ajoute un personnage à l'équipe si valide
-    Retourne True si ajouté, False sinon
-    """
-    personnage_choisi = personnages_disponibles[choix - 1]
-
-    if personnage_choisi in equipe:
-        _afficher_personnage_deja_choisi()
-        return False
-
-    equipe.append(personnage_choisi)
-    _confirmer_ajout_personnage(personnage_choisi)
-    return True
-
-
-def _afficher_personnage_deja_choisi():
-    """Affiche un message si le personnage est déjà choisi"""
-    print("Personnage déjà choisi, choisissez un autre.")
-    time.sleep(DELAY_MESSAGE_COURT)
 
 
 def _confirmer_ajout_personnage(personnage):

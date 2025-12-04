@@ -60,22 +60,21 @@ def saisir_entier(message_prompt, valeur_min=None, valeur_max=None):
     """Demande à l'utilisateur de saisir un entier avec validation"""
     while True:
         saisie = input(message_prompt).strip()
-
-        if not _est_entier_valide(saisie):
-            print(MSG_ENTREE_INVALIDE)
-            continue
-
-        valeur = int(saisie)
-
-        if _valeur_hors_limites(valeur, valeur_min, valeur_max):
-            continue
-
-        return valeur
+        if _is_input_hors_limite(saisie, valeur_min, valeur_max):
+            return int(saisie)
 
 
 def attendre_entree(message=MSG_RETOUR_MENU):
     """Fait une pause jusqu'à ce que l'utilisateur appuie sur Entrée"""
     input(message)
+
+
+def _is_input_hors_limite(saisie, valeur_min, valeur_max):
+    if not _est_entier_valide(saisie):
+        return False
+    if _valeur_hors_limites(int(saisie), valeur_min, valeur_max):
+        return False
+    return True
 
 
 def _recuperer_entites(nom_collection, classe_entite, type_entite):
